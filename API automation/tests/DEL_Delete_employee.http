@@ -24,4 +24,4 @@ Authorization: {{Authorization}}
     });
 %}
 
-//TODO would add more tests to check validity of response for non-existing id, now API returns just 405 which I find to be incorrect
+// TODO: would add more tests to check validity of response for non-existing id, now API returns just 405 which I find to be incorrect
