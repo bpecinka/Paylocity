@@ -1,0 +1,368 @@
+BUG-1 - Missing validation for First and Last name input in Add Employee form
+Severity: medium/high
+
+Steps:
+Paylocity benefit dashboard -> button Add Employee -> fields First name and/or Last name -> invalid input (eg. "ˇ9%00%8")
+
+Result:
+input accepted, request sent to /Prod/api/employees with payload {"firstName":"ˇ9%00%8","lastName":"(!(9%!\"_","dependants":1}
+and new employee created
+
+Expected:
+proper validation, eg. no numbers and special characters (eg. %ˇ!"() allowed. User friendly validation error message displayed when entering invalid data
+
+
+
+
+
+
+
+
+BUG-2 - no validation error when submitting empty form - BE returns HTTP 405
+Severity: low
+
+Steps:
+Paylocity benefit dashboard -> button Add Employee -> leave empty fields -> button Add -> Click
+
+Result:
+no visible validation error, form stays open. App sends POST API call on /api/employees with payload {"firstName":"","lastName":"","dependants":null}
+which returns HTTP 405 Method Not Allowed
+
+Expected:
+Proper validation errors for missing expected input in required fields
+
+
+
+
+
+
+
+
+BUG-3 - No user validation error when creating new employee without First name
+Severity: medium
+
+Steps:
+Paylocity benefit dashboard -> button Add Employee -> First name field is empty, Last name and Dependents have valid data -> button Add -> Click
+
+Result:
+no visible validation error, form stays open.
+
+App sends POST API call on /api/employees with payload {"firstName":"","lastName":"Pecinka","dependants":1}
+and API returns HTTP 400 proper validation error  {
+                                                "memberNames": [
+                                                    "FirstName"
+                                                ],
+                                                "errorMessage": "The FirstName field is required."
+                                            }
+                                        ]
+
+but FE doesn't reflect this
+
+Expected:
+Proper user-friendly validation error for missing expected input in required field First Name
+
+
+
+
+
+
+
+
+BUG-4 - No user validation error when creating new employee without Last Name
+Severity: medium
+
+Steps:
+Paylocity benefit dashboard -> button Add Employee -> Last name field is empty, First name and Dependents have valid data -> button Add -> Click
+
+Result:
+no visible validation error, form stays open.
+
+App sends POST API call on /api/employees with payload {"firstName":"Bob","lastName":"","dependants":1}
+and API returns HTTP 400 proper validation error  [{"memberNames":["LastName"],"errorMessage":"The LastName field is required."}]
+
+but FE doesn't reflect this
+
+Expected:
+Proper user-friendly validation error for missing expected input in required field Last Name
+
+
+
+
+
+
+
+BUG-5 - No user friendly validation error when creating new employee without Dependents
+Severity: medium
+
+Steps:
+Paylocity benefit dashboard -> button Add Employee -> Last name and First name have valid data, Dependents field is empty -> button Add -> Click
+
+Result:
+no visible validation error, form stays open.
+
+App sends POST API call on /api/employees with payload {"firstName":"Bohumil","lastName":"Pečinka","dependants":null}
+and API returns HTTP 405 Method Not Allowed but FE doesn't reflect this
+
+Expected:
+Proper user-friendly validation error for missing expected input in required field Dependents
+
+
+
+
+
+
+
+BUG/IMPROVEMENT-6 - Missing sorting/paging function
+Severity: low
+
+Steps:
+Paylocity benefit dashboard
+
+Result:
+Missing sorting/paging function, app is not very user friendly when working with bigger set od data/employee entries
+
+Expected:
+Added sorting/paging function. Order by ASC, DESC
+
+
+
+
+
+
+BUG-7 - User without login can access dashboard
+Severity: medium
+
+Steps:
+open url address of benefits dashboard directly without going through login page
+
+Result:
+app opens empty dashboard, but you can see structure and add employee button. You can't access data put by loggen in users
+
++ API POST call for Add employee correctly returns     "title": "Unauthorized",
+                                                       "status": 401,
+
+Expected:
+not logged in user cannot access dashboard
+
+
+
+
+
+
+BUG/IMPROVEMENT-8 - Dashboard doesn't support bulk edit/delete and search functions
+Severity: low
+
+Steps:
+Paylocity benefit dashboard
+
+Result:
+dashboard doesn't support bulk edit/delete or full-text search
+
+Expected:
+added function for bulk edit/delete, multiple choice checkbox? and search function
+
+
+
+
+
+
+BUG/IMPROVEMENT-9 - dashboard doesn't contain currency
+Severity: low
+
+Steps
+Paylocity benefit dashboard
+
+Result:
+dashboard doesn't contain currency when amounts are present, eg. Salary, Gross pay etc.
+
+Expected:
+added and properly displayed currency value when applicable
+
+
+
+
+
+
+BUG/IMPROVEMENT-10 - missing duplicate entry validation
+Severity: low
+
+Steps:
+Paylocity benefit dashboard/list -> entry new employee with duplicate First name, Last name and Dependents values
+
+Result:
+multiple new entries created with identical values in all 3 fields. IDs are different
+
+Expected:
+existing need for different unique identificator other than ID for input
+
+note: This is open for discussion, since there are user paths where this would be redundand or evan constrictive.
+
+
+
+
+
+
+BUG/Improvement 11- Deleting existing employee returns HTTP 200 instead of 204
+severity: low
+
+Step:
+API call DEL /api/Employees/:id for existing employee
+
+Result:
+employee deleted, request returns 200 and no body
+
+Expected:
+while response with http code 200 is in compliance with documentation,
+http code 204 would be probably better, since the action was successfully fulfilled and there is no additional content
+
+note: open to discussion
+
+
+
+
+
+BUG-12 - Deleting already deleted employee returns 200 instead of 404
+severity: medium/low depending on how this is handled on FE
+
+Steps:
+API call DEL /api/Employees/:id for already deleted employee
+
+Result:
+all subsequent calls for the same employeeId return HTTP 200 OK
+
+Expected:
+HTTP 404 since the resource had already been deleted
+
+
+
+
+
+
+BUG-13 - API call for deleting employee without employeeID returns 405 instead of 400
+Severity: low/medium
+Steps:
+API call DEL /api/Employees/ = with missing employeeID
+
+Result:
+response 405 Method not allowed
+
+Expected:
+ideally HTTP 400 bad request or 404 not found if required ID is missing or invalid
+
+
+
+
+
+
+BUG-14 - API call for employee detail with invalid/deleted id returns HTTP 500
+severity: medium/high?
+
+Steps:
+API call GET /api/Employees/invalidId(eg.12345) = with invalid/non-existing/already deleted employeeID
+
+Result:
+HTTP 500 internal server error
+ <h1 class="text-danger">Error.</h1>
+            <h2 class="text-danger">An error occurred while processing your request.</h2>
+
+Expected:
+HTTP 404 not found, definitely not HTTP 500 Internal server error
+
+
+
+
+
+
+BUG/IMPROVEMENT-15 - Success full API call for crating new employee return HTTP 200 instead of 201
+Severity: low
+
+Steps:
+valid API call POST /api/Employees/
+
+Result:
+created new employee, API call returns HTTP 200
+
+Expected:
+HTTP 201, since new resource was created
+
+note: Open to discussion on this
+
+
+
+
+
+
+BUG-16 - API call for creating employee with missing dependents field returns 405 instead of 400
+Severity: low/medium
+
+Steps:
+API call POST /api/Employees/ with missing Dependents field
+body
+{
+  "firstName": "Bob",
+  "lastName": "Test",
+}
+
+Result:
+response 405 Method not allowed
+
+Expected:
+response HTTP 400 bad request with error detail as is implemented for fields firstname and lastname, eg.
+
+[
+    {
+        "memberNames": [
+            "LastName"
+        ],
+        "errorMessage": "The LastName field is required."
+    }
+]
+
+note: same error asi reported in BUG-5, applies for PUT update too.
+
+
+
+
+
+BUG-17 - API call for update employee should have employeeID in URL and not in body
+Severity: medium
+
+Steps:
+API call PUT /api/Employees for update employee
+body example:
+{
+    "id": "22bd0304-4ba5-428e-948d-2085b25749cf",
+    "firstName": "Bob",
+    "lastName": "ApiCallNulaUpdate",
+    "dependants": 2
+}
+
+Result:
+resource's Id is put in request body, which is against Restful conventions
+
+Expected:
+In a PUT request it is generally better to put resource ID in the URL, not the body since URL is typically used to identify specific resource
+I recommend changing this to PUT /api/employees/:id
+
+
+
+
+
+BUG/IMPROVEMENT-18 - API call for update employee returns HTTP 405 when id is non-existent/invalid
+Severity: low/medium
+
+Steps:
+API call PUT /api/Employees for update employee
+body example:
+{
+    "id": "12345-invalid",
+    "firstName": "Bob",
+    "lastName": "ApiCallNulaUpdate",
+    "dependants": 2
+}
+
+Result:
+HTTP 405 - Method not allowed
+
+Expected:
+HTTP 404 not found
