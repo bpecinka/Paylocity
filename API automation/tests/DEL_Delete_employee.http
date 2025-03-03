@@ -1,0 +1,27 @@
+
+//POST Create Employee for deletation
+POST {{baseUrl}}/Employees HTTP/1.1
+Content-Type: {{Content-Type}}
+Authorization: {{Authorization}}
+
+{{POSTCreateNewEmployee.validBody}}
+
+> {%
+    let jsonData = response.body;
+    let employeeForDeletation = jsonData.id;
+    client.global.set("employeeForDeletation", employeeForDeletation)
+%}
+###
+
+//DELETE Delete employee
+DELETE {{baseUrl}}/Employees/{{employeeForDeletation}} HTTP/1.1
+Content-Type: {{Content-Type}}
+Authorization: {{Authorization}}
+
+> {%
+    client.test("Request returns HTTP 200", function() {
+        client.assert(response.status === 200, "Expected HTTP status 200 but got '" + response.status)
+    });
+%}
+
+//TODO would add more tests to check validity of response for non-existing id, now API returns just 405 which I find to be incorrect

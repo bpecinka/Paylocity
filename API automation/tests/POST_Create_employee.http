@@ -1,0 +1,89 @@
+
+//POST Create Employee with valid request
+POST {{baseUrl}}/Employees HTTP/1.1
+Content-Type: {{Content-Type}}
+Authorization: {{Authorization}}
+
+{{POSTCreateNewEmployee.validBody}}
+
+> {%
+    let jsonData = response.body
+
+    client.test("Request returns HTTP 200 ", function() {
+        client.assert(response.status === 200, "Expected HTTP status 200 but got '" + response.status) //see BUG report, would expect HTTP 201
+    });
+
+    client.test("Response is not empty", function (){
+        client.assert(Object.keys(response.body).length >0, "Response body is not empty");
+    });
+
+    client.test("Response includes correct data", function () { //could be checked against api specification (OpenAPI)
+        client.assert(typeof jsonData.username === 'string' && jsonData.username !== '', "The 'username' should be a non-empty string");
+        client.assert(typeof jsonData.id === 'string' && jsonData.id !== '', "The 'id' should be a non-empty string");
+        client.assert(typeof jsonData.firstName === 'string' && jsonData.firstName !== '', "The 'firstName' should be a non-empty string");
+        client.assert(typeof jsonData.lastName === 'string' && jsonData.lastName !== '', "The 'lastName' should be a non-empty string");
+        client.assert(typeof jsonData.salary === 'number' && !isNaN(jsonData.salary), "The 'salary' should be a valid number");
+        client.assert(typeof jsonData.gross === 'number' && !isNaN(jsonData.gross), "The 'gross' should be a valid number");
+        client.assert(typeof jsonData.benefitsCost === 'number' && !isNaN(jsonData.benefitsCost), "The 'benefitsCost' should be a valid number");
+        client.assert(typeof jsonData.net === 'number' && !isNaN(jsonData.net), "The 'net' should be a valid number");
+        }
+    )
+
+
+
+%}
+###
+
+
+//POST Create Employee with invalid request
+POST {{baseUrl}}/Employees HTTP/1.1
+Content-Type: {{Content-Type}}
+Authorization: {{Authorization}}
+
+{{POSTCreateNewEmployee.invalidBody}}
+
+> {%
+    let jsonData = response.body
+    const correctErrorMessage = "The FirstName field is required."
+
+    client.test("Request returns HTTP 200 ", function() {
+        client.assert(response.status === 400, "Expected HTTP status 400 but got '" + response.status)
+    });
+
+    client.test("Response is not empty", function (){
+        client.assert(Object.keys(response.body).length >0, "Response body is not empty");
+    });
+
+    client.test("Response includes correct validation error", function () {
+        client.assert(jsonData[0].errorMessage === correctErrorMessage,
+            "Expected 'Error message' to be '" + correctErrorMessage + "' but got '" + response.title + "'")
+    })
+
+
+%}
+###
+
+//POST Create Employee as anonymous
+POST {{baseUrl}}/Employees HTTP/1.1
+Content-Type: {{Content-Type}}
+
+{{POSTCreateNewEmployee.validBody}}
+
+> {%
+    let jsonData = response.body
+
+    client.test("Request returns HTTP 401 without valid authorization", function() {
+        client.assert(response.status === 401, "Expected HTTP status 401 but got '" + response.status)
+    });
+
+    client.test("Response is not empty", function (){
+        client.assert(Object.keys(response.body).length >0, "Response body is not empty");
+    });
+
+    client.test("Response includes correct title - Unauthorized", function () {
+            client.assert(jsonData.title === 'Unauthorized', "Expected 'title' to be 'Unauthorized' but got '" + response.title + "'");
+        }
+    )
+
+%}
+###
