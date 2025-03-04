@@ -1,0 +1,50 @@
+name: CI Pipeline for Aqua API & Playwright Tests
+
+# Triggers the workflow on push to the main branch or PRs to the main branch
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  # Aqua API Tests job
+  aqua_api_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Specify the version you need
+
+      - name: Install dependencies for Aqua API tests
+        run: npm install  # Or the equivalent for your Aqua API tests
+
+      - name: Run Aqua API tests
+        run: npm run test:aqua  # Or the command to run your Aqua API tests
+
+  # Playwright Tests job
+  playwright_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Specify the version you need
+
+      - name: Install dependencies for Playwright tests
+        run: npm install  # Make sure Playwright and other dependencies are installed
+
+      - name: Install Playwright browsers
+        run: npx playwright install  # Install necessary browsers for Playwright tests
+
+      - name: Run Playwright tests
+        run: npm run test:playwright  # Or the command to run your Playwright tests
