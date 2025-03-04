@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2015", "DOM"]
+  },
+  "include": [
+    "tests/**/*.ts",
+    "pageObjects/**/*.ts"
+  ]
+}
